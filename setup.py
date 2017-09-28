@@ -17,8 +17,8 @@ REQUIRES = [
     'django',
     'pytest',
     'pytest-django',
-    'tipsi-tools==1.5.0',
-    'pytest-tipsi-testing>=0.1.0,<1.0.0',
+    'tipsi-tools',
+    'pytest-tipsi-testing>=0.3.0',
 ]
 
 setup(

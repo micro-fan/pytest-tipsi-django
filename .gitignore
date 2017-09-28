@@ -13,3 +13,4 @@ wheelhouse/
 .coverage.*
 .tox
 *~
+htmlcov

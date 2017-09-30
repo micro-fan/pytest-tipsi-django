@@ -2,7 +2,19 @@ import os
 import time
 from contextlib import suppress
 import pytest
-from tipsi_tools.unix import wait_socket
+from tipsi_tools.unix import wait_socket, succ
+
+
+def create_database():
+    print('Create database')
+    c = 0
+    while c < 30:
+        try:
+            succ('echo create database plugin | psql -h localhost -p 40001 -U postgres')
+            return
+        except:
+            c += 1
+            time.sleep(1)
 
 
 def pytest_configure(config):
@@ -16,10 +28,9 @@ def pytest_configure(config):
     try:
         print('Start docker')
         os.system('docker run -d -p 40001:5432 --name=testpostgres --rm=true postgres')
-        time.sleep(15)
+        time.sleep(5)
         wait_socket('localhost', 40001, timeout=15)
-        print('Create database')
-        os.system('echo create database plugin | psql -h localhost -p 40001 -U postgres')
+        create_database()
     except Exception as e:
         print('EXCEPTION: {}'.format(e))
         exit(1)

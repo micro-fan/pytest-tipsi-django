@@ -3,8 +3,6 @@ import os
 from contextlib import contextmanager
 from pprint import pformat
 
-from tipsi_tools.python import rel_path
-
 
 class APIError(Exception):
     def __init__(self, *args, resp, expected):
@@ -75,7 +73,7 @@ class RequestLogger:
         print('\nResponse Code: {status_code} Content:\n{response}\n'.format(**log_record))
 
     def finish(self):
-        path = './doc'
+        path = os.environ.get('DOCS_ROOT', './.doc')
         if not os.path.exists(path):
             os.mkdir(path)
         fname = os.path.join(path, '{}.{}.json'.format(self.module, self.doc_path))

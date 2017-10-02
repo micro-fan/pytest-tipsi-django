@@ -30,7 +30,7 @@ setup(
     author_email='cybergrind@gmail.com',
     maintainer='cybergrind',
     maintainer_email='cybergrind@gmail.com',
-    url='https://github.com/_/pytest-tipsi-django',
+    url='https://github.com/tipsi/pytest-tipsi-django',
     license='MIT',
 
     entry_points={

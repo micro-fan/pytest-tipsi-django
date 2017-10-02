@@ -1,8 +1,6 @@
 pytest-tipsi-django
 ===================
 
------
-
 .. contents:: **Table of Contents**
     :backlinks: none
 

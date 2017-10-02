@@ -75,7 +75,7 @@ class RequestLogger:
         print('\nResponse Code: {status_code} Content:\n{response}\n'.format(**log_record))
 
     def finish(self):
-        path = rel_path('../.doc', check=False)
+        path = './doc'
         if not os.path.exists(path):
             os.mkdir(path)
         fname = os.path.join(path, '{}.{}.json'.format(self.module, self.doc_path))

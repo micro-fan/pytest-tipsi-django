@@ -150,7 +150,8 @@ class UserWrapper:
 
     def check_code(self, resp, expected):
         if resp.status_code != expected:
-            raise APIError(resp.status_code, resp=resp, expected=expected)
+            msg = '{} {}'.format(resp.status_code, resp.content)[:1000]
+            raise APIError(msg, resp=resp, expected=expected)
 
     def get_json(self, *args, expected=200, **kwargs):
         r = self.json_method('get', *args, **kwargs)

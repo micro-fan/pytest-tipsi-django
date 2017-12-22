@@ -41,3 +41,18 @@ def test_02(solaris, lem):
 def test_03():
     assert Author.objects.count() == 0
     assert Book.objects.count() == 0
+
+
+def test_04(solaris, lem):
+    assert Author.objects.count() == 1
+    assert Book.objects.count() == 1
+
+
+def test_05():
+    assert Author.objects.count() == 0
+    assert Book.objects.count() == 0
+
+
+def test_06(solaris, lem):
+    assert Author.objects.count() == 1
+    assert Book.objects.count() == 1

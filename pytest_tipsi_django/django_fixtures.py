@@ -11,12 +11,13 @@ def get_fixture(fixturemanager, name):
     return fixturemanager._arg2fixturedefs[name][0]
 
 
-def finish_fixture(fixturemanager, name):
-    get_fixture(fixturemanager, name).finish()
+def finish_fixture(request, name):
+    fixturemanager = request.session._fixturemanager
+    get_fixture(fixturemanager, name).finish(request)
 
 
 @contextmanager
-def atomic_rollback(vprint, name, fixturename, fixturemanager):
+def atomic_rollback(request, vprint, name, fixturename):
     from django.db import transaction
 
     sid = transaction.savepoint()
@@ -26,7 +27,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
     if _transactions_stack:
         curr = _transactions_stack[-1]
         while curr and curr != fixturename:
-            finish_fixture(fixturemanager, curr)
+            finish_fixture(request, curr)
             if _transactions_stack:
                 curr = _transactions_stack[-1]
             else:
@@ -37,7 +38,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
             transaction.savepoint_rollback(sid)
 
 
-def get_atomic_rollback(session, vprint):
+def get_atomic_rollback(request, vprint):
     def _inner(fixturename, *args, **kwargs):
         f = inspect.currentframe().f_back.f_code
         name = '{} at {}:{}'.format(f.co_name, f.co_filename, f.co_firstlineno)
@@ -45,7 +46,7 @@ def get_atomic_rollback(session, vprint):
             formatted = '{} / {} {}'.format(name, args, kwargs)
         else:
             formatted = name
-        return atomic_rollback(vprint, formatted, fixturename, session._fixturemanager)
+        return atomic_rollback(request, vprint, formatted, fixturename)
     return _inner
 
 
@@ -56,7 +57,7 @@ def module_transaction(request, vprint, django_db_blocker, django_db_setup):
     django_db_blocker.unblock()
     with transaction.atomic():
         sid = transaction.savepoint()
-        yield get_atomic_rollback(request.session, vprint)
+        yield get_atomic_rollback(request, vprint)
         transaction.savepoint_rollback(sid)
     connection.close()
 

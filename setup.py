@@ -15,10 +15,10 @@ with open('README.rst', 'r', encoding='utf-8') as f:
 
 REQUIRES = [
     'django',
-    'pytest==3.2.*',
+    'pytest>=3.3.0',
     'pytest-django==3.1.*',
     'tipsi-tools>=1.7.0',
-    'pytest-tipsi-testing>=0.3.0',
+    'pytest-tipsi-testing>=1.0.0',
 ]
 
 setup(

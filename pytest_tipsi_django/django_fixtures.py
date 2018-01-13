@@ -12,7 +12,8 @@ def finish_fixture(vprint, request, name):
     defs = fixturemanager.getfixturedefs(name, request.node.nodeid)
     vprint('Finish variants: {}'.format(defs))
     if defs:
-        defs[-1].finish(request)
+        for d in reversed(defs):
+            d.finish(request)
 
 
 @contextmanager

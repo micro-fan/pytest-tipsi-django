@@ -7,17 +7,16 @@ from pytest_django.fixtures import SettingsWrapper
 _transactions_stack = []
 
 
-def get_fixture(fixturemanager, name):
-    return fixturemanager._arg2fixturedefs[name][0]
-
-
-def finish_fixture(request, name):
+def finish_fixture(vprint, request, name):
     fixturemanager = request.session._fixturemanager
-    get_fixture(fixturemanager, name).finish(request)
+    defs = fixturemanager.getfixturedefs(name, request.node.nodeid)
+    vprint('Finish variants: {}'.format(defs))
+    if defs:
+        defs[-1].finish(request)
 
 
 @contextmanager
-def atomic_rollback(request, vprint, name, fixturename):
+def atomic_rollback(vprint, name, fixturename, fixturemanager):
     from django.db import transaction
 
     sid = transaction.savepoint()
@@ -27,7 +26,7 @@ def atomic_rollback(request, vprint, name, fixturename):
     if _transactions_stack:
         curr = _transactions_stack[-1]
         while curr and curr != fixturename:
-            finish_fixture(request, curr)
+            finish_fixture(vprint, fixturemanager, curr)
             if _transactions_stack:
                 curr = _transactions_stack[-1]
             else:
@@ -46,7 +45,7 @@ def get_atomic_rollback(request, vprint):
             formatted = '{} / {} {}'.format(name, args, kwargs)
         else:
             formatted = name
-        return atomic_rollback(request, vprint, formatted, fixturename)
+        return atomic_rollback(vprint, formatted, fixturename, request)
     return _inner
 
 

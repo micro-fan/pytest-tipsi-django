@@ -4,7 +4,8 @@ from pytest_tipsi_django import client_fixtures
 from pytest_tipsi_django.client_fixtures import UserWrapper
 from pytest_tipsi_django.django_fixtures import (  # noqa
     session_settings, module_settings,
-    module_transaction, function_fixture, module_fixture
+    module_transaction, function_fixture, module_fixture,
+    django_assert_num_queries
 )
 
 

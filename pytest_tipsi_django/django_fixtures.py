@@ -21,21 +21,27 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
     from django.db import transaction
 
     sid = transaction.savepoint()
-    _transactions_stack.append(fixturename)
-    vprint('transaction start: {} {}'.format(name, sid))
-    yield
-    if _transactions_stack:
-        curr = _transactions_stack[-1]
-        while curr and curr != fixturename:
-            finish_fixture(vprint, fixturemanager, curr)
-            if _transactions_stack:
-                curr = _transactions_stack[-1]
-            else:
-                curr = None
-        if curr == fixturename:
-            vprint('rollback {} {}'.format(name, sid))
-            _transactions_stack.pop()
-            transaction.savepoint_rollback(sid)
+    try:
+        _transactions_stack.append(fixturename)
+        vprint('transaction start: {} {}'.format(name, sid))
+        yield
+    except Exception:
+        fname = _transactions_stack.pop()
+        assert fname == fixturename
+        raise
+    else:
+        if _transactions_stack:
+            curr = _transactions_stack[-1]
+            while curr and curr != fixturename:
+                finish_fixture(vprint, fixturemanager, curr)
+                if _transactions_stack:
+                    curr = _transactions_stack[-1]
+                else:
+                    curr = None
+            if curr == fixturename:
+                vprint('rollback {} {}'.format(name, sid))
+                _transactions_stack.pop()
+                transaction.savepoint_rollback(sid)
 
 
 def get_atomic_rollback(request, vprint):

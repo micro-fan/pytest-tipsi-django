@@ -2,6 +2,7 @@ import inspect
 from contextlib import contextmanager
 
 import pytest
+from _pytest import fixtures
 from pytest_django.fixtures import SettingsWrapper
 
 _transactions_stack = []
@@ -92,6 +93,36 @@ def module_settings(session_settings):
     wrapper = SettingsWrapper()
     yield wrapper
     wrapper.finalize()
+
+
+def transaction_fx(scope):
+    """
+    Shortcut for fixtures which uses module_transaction
+    >>>@pytest.fixture(scope='module')
+    ...def some_fx(request, sub_fx, module_transaction):
+    ...    with module_transaction(request.fixturename):
+    ...        yield SomeModel.objects.create(sub=sub_fx)
+    vs
+    >>>@module_fx
+    ...def some_fx(sub_fx):
+    ...    return SomeModel.objects.create(sub=sub_fx)
+    """
+    def _decorator(func):
+        arg_names = fixtures.getfuncargnames(func)
+
+        def _inner(request):
+            requested_fixtures = [request.getfixturevalue(n) for n in arg_names]
+            module_transaction = request.getfixturevalue('module_transaction')
+            with module_transaction(request.fixturename):
+                yield func(*requested_fixtures)
+
+        return pytest.fixture(scope=scope, name=func.__name__)(_inner)
+
+    return _decorator
+
+
+module_fx = transaction_fx('module')
+function_fx = transaction_fx('function')
 
 
 try:

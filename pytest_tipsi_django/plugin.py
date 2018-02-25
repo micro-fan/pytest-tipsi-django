@@ -13,12 +13,21 @@ def setup_docs_logger(item):
     func = item.function
     if hasattr(func, 'docme') and item.config.getoption('write_docs'):
         client_fixtures.request_logger = client_fixtures.RequestLogger(item)
+    elif item.config.getoption('verbose_request'):
+        client_fixtures.request_logger = client_fixtures.RequestVerbose(item)
 
 
 def pytest_addoption(parser):
     group = parser.getgroup('docme')
     group.addoption('--write-docs', action='store_true', default=False,
                     help='Write http requests for documentation')
+    group.addoption('--verbose_request', action='store_true', default=False,
+                    help='Print all requests to stdout')
+
+def pytest_configure(config):
+    options = ['write_docs', 'verbose_request']
+    if all(config.getoption(opt) for opt in options):
+        raise pytest.UsageError("Use only one option at the same time {}".format(options))
 
 
 @pytest.fixture

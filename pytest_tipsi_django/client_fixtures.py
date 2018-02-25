@@ -11,18 +11,14 @@ class APIError(Exception):
         self.expected = expected
 
 
-class RequestLogger:
+class RequestVerbose:
     def __init__(self, request, pretty_json=True):
         func = request.function
         self.module = func.__module__
         self.test_name = func.__name__
 
-        if not getattr(func, 'docme') or 'path' not in func.docme.kwargs:
-            raise Exception('You should mark test with @pytest.mark.docme(path="PATH")')
-
-        self.doc_path = func.docme.kwargs['path']
         self.pretty_json = pretty_json
-        self.verbose = request.config.getoption('verbose')
+        self.verbose = True
         self.records = []
         self._silent = False
 
@@ -73,18 +69,34 @@ class RequestLogger:
         print('\nResponse Code: {status_code} Content:\n{response}\n'.format(**log_record))
 
     def finish(self):
-        path = os.environ.get('DOCS_ROOT', './.doc')
-        if not os.path.exists(path):
-            os.mkdir(path)
-        fname = os.path.join(path, '{}.{}.json'.format(self.module, self.doc_path))
-        with open(fname, 'w') as f:
-            json.dump(self.records, f)
+        pass
 
     @contextmanager
     def silent(self):
         self._silent = True
         yield
         self._silent = False
+
+
+class RequestLogger(RequestVerbose):
+    def __init__(self, request, pretty_json=True):
+        func = request.function
+        if not getattr(func, 'docme') or 'path' not in func.docme.kwargs:
+            raise Exception('You should mark test with @pytest.mark.docme(path="PATH")')
+
+        super().__init__(request, pretty_json)
+
+        self.doc_path = func.docme.kwargs['path']
+        self.verbose = request.config.getoption('verbose')
+
+
+    def finish(self):
+        path = os.environ.get('DOCS_ROOT', './.doc')
+        if not os.path.exists(path):
+            os.mkdir(path)
+        fname = os.path.join(path, '{}.{}.json'.format(self.module, self.doc_path))
+        with open(fname, 'w') as f:
+            json.dump(self.records, f)
 
 
 class RequestLoggerStub:

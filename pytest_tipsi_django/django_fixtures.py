@@ -3,7 +3,8 @@ from contextlib import contextmanager
 
 import pytest
 from _pytest import fixtures
-from pytest_django.fixtures import SettingsWrapper
+from pytest_django.fixtures import SettingsWrapper as OriginalSettingsWrapper
+
 
 _transactions_stack = []
 
@@ -81,6 +82,16 @@ def module_fixture(request, module_transaction):
         yield
 
 
+class SettingsWrapper(OriginalSettingsWrapper):
+    """
+    we need `_to_restore` to be object local to work with nesting
+    see test_settings.py for test case
+    """
+    def __init__(self):
+        self.__dict__['_to_restore'] = []
+        assert id(SettingsWrapper._to_restore) != id(self._to_restore)
+
+
 @pytest.fixture(scope='session')
 def session_settings():
     wrapper = SettingsWrapper()
@@ -90,6 +101,13 @@ def session_settings():
 
 @pytest.fixture(scope='module')
 def module_settings(session_settings):
+    wrapper = SettingsWrapper()
+    yield wrapper
+    wrapper.finalize()
+
+
+@pytest.fixture(scope='function')
+def function_settings(module_settings):
     wrapper = SettingsWrapper()
     yield wrapper
     wrapper.finalize()

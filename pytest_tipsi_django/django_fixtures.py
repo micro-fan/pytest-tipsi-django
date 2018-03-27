@@ -12,7 +12,7 @@ _transactions_stack = []
 def finish_fixture(vprint, request, name):
     fixturemanager = request.session._fixturemanager
     defs = fixturemanager.getfixturedefs(name, request.node.nodeid)
-    vprint('Finish variants: {}'.format(defs))
+    vprint('Finish variants: {}'.format(defs), level=3)
     if defs:
         for d in reversed(defs):
             d.finish(request)
@@ -25,7 +25,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
     sid = transaction.savepoint()
     try:
         _transactions_stack.append(fixturename)
-        vprint('transaction start: {} {}'.format(name, sid))
+        vprint('transaction start: {} {}'.format(name, sid), level=2)
         yield
     except Exception:
         fname = _transactions_stack.pop()
@@ -41,7 +41,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
                 else:
                     curr = None
             if curr == fixturename:
-                vprint('rollback {} {}'.format(name, sid))
+                vprint('rollback {} {}'.format(name, sid), level=2)
                 _transactions_stack.pop()
                 transaction.savepoint_rollback(sid)
 

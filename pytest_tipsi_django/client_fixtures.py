@@ -106,6 +106,10 @@ class RequestLoggerStub:
     def __getattr__(self, name):
         return self
 
+    @contextmanager
+    def silent(self):
+        yield
+
 request_logger = RequestLoggerStub()
 
 

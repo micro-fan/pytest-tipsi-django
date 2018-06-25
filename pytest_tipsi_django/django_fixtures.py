@@ -9,10 +9,27 @@ from pytest_django.fixtures import SettingsWrapper as OriginalSettingsWrapper
 _transactions_stack = []
 
 
-def finish_fixture(vprint, request, name):
+def get_defs_by_name(vprint, request, name):
     fixturemanager = request.session._fixturemanager
     defs = fixturemanager.getfixturedefs(name, request.node.nodeid)
-    vprint('Finish variants: {}'.format(defs), level=3)
+    # see test_transaction_class.py to find failed case
+    # class fixtures have baseid = <module>::<Class>::()
+    # but tests have nodeid = <module>
+    # so class fixtures basically have more precise scope than function
+    # thus we need to wider scope for such cases
+    if not defs and name in fixturemanager._arg2fixturedefs:
+        defs = fixturemanager._arg2fixturedefs[name]
+        vprint(f'Get fixtures without respecting factories: {request.node.nodeid} {defs}', level=2)
+
+    # We need this only to finish fixtures in _transactions_stack
+    # if we have no defs here - there will be infinite loop in atomic_rollback:while below
+    assert defs, f'Cannot find: {name} Available: {list(fixturemanager._arg2fixturedefs.keys())}'
+    vprint('Finish variants: {} For: {}'.format(defs, name), level=3)
+    return defs
+
+
+def finish_fixture(vprint, request, name):
+    defs = get_defs_by_name(vprint, request, name)
     if defs:
         for d in reversed(defs):
             d.finish(request)
@@ -35,6 +52,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
         if _transactions_stack:
             curr = _transactions_stack[-1]
             while curr and curr != fixturename:
+                vprint(f'Stack: {_transactions_stack} {curr}')
                 finish_fixture(vprint, fixturemanager, curr)
                 if _transactions_stack:
                     curr = _transactions_stack[-1]

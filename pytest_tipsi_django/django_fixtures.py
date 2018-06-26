@@ -5,7 +5,6 @@ import pytest
 from _pytest import fixtures
 from pytest_django.fixtures import SettingsWrapper as OriginalSettingsWrapper
 
-
 _transactions_stack = []
 
 
@@ -19,11 +18,14 @@ def get_defs_by_name(vprint, request, name):
     # thus we need to wider scope for such cases
     if not defs and name in fixturemanager._arg2fixturedefs:
         defs = fixturemanager._arg2fixturedefs[name]
-        vprint(f'Get fixtures without respecting factories: {request.node.nodeid} {defs}', level=2)
+        vprint(
+            'Get fixtures without respecting factories: {} {}'.format(request.node.nodeid, defs),
+            level=2)
 
     # We need this only to finish fixtures in _transactions_stack
     # if we have no defs here - there will be infinite loop in atomic_rollback:while below
-    assert defs, f'Cannot find: {name} Available: {list(fixturemanager._arg2fixturedefs.keys())}'
+    assert defs, 'Cannot find: {} Available: {}'.format(
+        name, list(fixturemanager._arg2fixturedefs.keys()))
     vprint('Finish variants: {} For: {}'.format(defs, name), level=3)
     return defs
 
@@ -52,7 +54,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
         if _transactions_stack:
             curr = _transactions_stack[-1]
             while curr and curr != fixturename:
-                vprint(f'Stack: {_transactions_stack} {curr}')
+                vprint('Stack: {} {}'.format(_transactions_stack, curr))
                 finish_fixture(vprint, fixturemanager, curr)
                 if _transactions_stack:
                     curr = _transactions_stack[-1]
@@ -73,6 +75,7 @@ def get_atomic_rollback(request, vprint):
         else:
             formatted = name
         return atomic_rollback(vprint, formatted, fixturename, request)
+
     return _inner
 
 
@@ -105,6 +108,7 @@ class SettingsWrapper(OriginalSettingsWrapper):
     we need `_to_restore` to be object local to work with nesting
     see test_settings.py for test case
     """
+
     def __init__(self):
         self.__dict__['_to_restore'] = []
         assert id(SettingsWrapper._to_restore) != id(self._to_restore)
@@ -143,6 +147,7 @@ def transaction_fx(scope):
     ...def some_fx(sub_fx):
     ...    return SomeModel.objects.create(sub=sub_fx)
     """
+
     def _decorator(func):
         arg_names = fixtures.getfuncargnames(func)
 
@@ -160,10 +165,10 @@ def transaction_fx(scope):
 module_fx = transaction_fx('module')
 function_fx = transaction_fx('function')
 
-
 try:
     from pytest_django.fixtures import django_assert_num_queries
 except ImportError:
+
     @pytest.fixture(scope='function')
     def django_assert_num_queries(pytestconfig):
         from django.db import connection

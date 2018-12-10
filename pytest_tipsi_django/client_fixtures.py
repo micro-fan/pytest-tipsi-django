@@ -30,7 +30,7 @@ class RequestVerbose:
         for (_type, meta, obj) in Parser(LazyStream(BytesIO(s)), b'BoUnDaRyStRiNg'):
             if _type.strip() == 'file':
                 chunks[meta['content-disposition'][1]['name'].decode('utf8')] = '<BINARY_FILE>'
-        msg = f'Multipart Binary:\n{chunks}'
+        msg = 'Multipart Binary:\n{}'.format(chunks)
         return msg
 
     def prettify(self, s):

@@ -1,7 +1,10 @@
 import json
 import os
 from contextlib import contextmanager
+from io import BytesIO
 from pprint import pformat
+
+from django.http.multipartparser import LazyStream, Parser
 
 
 class APIError(Exception):
@@ -22,9 +25,21 @@ class RequestVerbose:
         self.records = []
         self._silent = False
 
+    def prettify_multipart(self, s):
+        chunks = {}
+        for (_type, meta, obj) in Parser(LazyStream(BytesIO(s)), b'BoUnDaRyStRiNg'):
+            if _type.strip() == 'file':
+                chunks[meta['content-disposition'][1]['name'].decode('utf8')] = '<BINARY_FILE>'
+        msg = f'Multipart Binary:\n{chunks}'
+        return msg
+
     def prettify(self, s):
+        if self.dj_request['CONTENT_TYPE'].startswith('multipart/'):
+            return self.prettify_multipart(s)
+
         if isinstance(s, bytes):
             s = s.decode('utf8')
+
         if isinstance(s, str):
             try:
                 return json.loads(s)
@@ -36,6 +51,7 @@ class RequestVerbose:
 
     def log(self, resp):
         request = resp.request
+        self.dj_request = request
         if 'wsgi.input' in request:
             cnt = request['wsgi.input']._FakePayload__content
             cnt.seek(0)
@@ -43,15 +59,17 @@ class RequestVerbose:
         else:
             payload = None
 
-        rec = {'method': request['REQUEST_METHOD'],
-               'path': request['PATH_INFO'],
-               'query': request['QUERY_STRING'],
-               'payload': payload,
-               'status_code': resp.status_code,
-               'status_text': resp.status_text,
-               'response_full': resp.serialize().decode('utf8'),
-               'response_headers': resp.serialize_headers().decode('utf8'),
-               'response': self.prettify(resp.content)}
+        rec = {
+            'method': request['REQUEST_METHOD'],
+            'path': request['PATH_INFO'],
+            'query': request['QUERY_STRING'],
+            'payload': payload,
+            'status_code': resp.status_code,
+            'status_text': resp.status_text,
+            'response_full': resp.serialize().decode('utf8'),
+            'response_headers': resp.serialize_headers().decode('utf8'),
+            'response': self.prettify(resp.content),
+        }
         self.record(rec)
 
     def record(self, log_record):
@@ -80,15 +98,14 @@ class RequestVerbose:
 
 class RequestLogger(RequestVerbose):
     def __init__(self, request, pretty_json=True):
-        func = request.function
-        if not getattr(func, 'docme') or 'path' not in func.docme.kwargs:
+        marker = request.get_closest_marker('docme')
+        if not marker or 'path' not in marker.kwargs:
             raise Exception('You should mark test with @pytest.mark.docme(path="PATH")')
 
         super().__init__(request, pretty_json)
 
-        self.doc_path = func.docme.kwargs['path']
+        self.doc_path = marker.kwargs['path']
         self.verbose = request.config.getoption('verbose')
-
 
     def finish(self):
         path = os.environ.get('DOCS_ROOT', './.doc')
@@ -110,6 +127,7 @@ class RequestLoggerStub:
     def silent(self):
         yield
 
+
 request_logger = RequestLoggerStub()
 
 
@@ -117,10 +135,12 @@ class UserWrapper:
     """
     Wraps User object, add requests support
     """
+
     content_format = 'json'  # or multipart
 
     def __init__(self, user=None):
         from rest_framework.test import APIClient
+
         self.user = user
         self.client = APIClient()
         self.client.force_authenticate(self.user)
@@ -202,6 +222,7 @@ def create_user(username, groups=(), permissions=(), **kwargs):
     from django.contrib.auth import get_user_model
     from django.contrib.auth.models import Permission, Group
     from django.contrib.contenttypes.models import ContentType
+
     User = get_user_model()
     exists = User.objects.filter(username=username).first()
     if exists:

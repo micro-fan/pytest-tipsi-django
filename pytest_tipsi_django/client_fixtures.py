@@ -34,11 +34,13 @@ class RequestVerbose:
         return msg
 
     def prettify(self, s):
-        if self.dj_request['CONTENT_TYPE'].startswith('multipart/'):
-            return self.prettify_multipart(s)
-
         if isinstance(s, bytes):
-            s = s.decode('utf8')
+            try:
+                s = s.decode('utf8')
+            except UnicodeDecodeError:
+                if self.dj_request['CONTENT_TYPE'].startswith('multipart/'):
+                    return self.prettify_multipart(s)
+                raise
 
         if isinstance(s, str):
             try:

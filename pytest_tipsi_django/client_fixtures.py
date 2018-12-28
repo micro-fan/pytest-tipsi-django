@@ -146,6 +146,8 @@ class UserWrapper:
         self.user = user
         self.client = APIClient()
         self.client.force_authenticate(self.user)
+        if self.user:
+            self.client.force_login(self.user)
 
     def __getattr__(self, name):
         if self.user is None:

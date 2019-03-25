@@ -9,9 +9,17 @@ from pytest_tipsi_django.django_fixtures import (  # noqa
 )
 
 
+def is_docme(item):
+    if hasattr(item.function, 'docme'):
+        return True
+    if item.own_markers:
+        for m in item.own_markers:
+            if m.name == 'docme':
+                return True
+
+
 def setup_docs_logger(item):
-    func = item.function
-    if hasattr(func, 'docme') and item.config.getoption('write_docs'):
+    if is_docme(item) and item.config.getoption('write_docs'):
         client_fixtures.request_logger = client_fixtures.RequestLogger(item)
     elif item.config.getoption('verbose_request'):
         client_fixtures.request_logger = client_fixtures.RequestVerbose(item)
@@ -44,8 +52,7 @@ def docs_logger():
 
 
 def finish_docs_logger(item, nextitem):
-    func = item.function
-    if hasattr(func, 'docme'):
+    if is_docme(item):
         client_fixtures.request_logger.finish()
         client_fixtures.request_logger = client_fixtures.RequestLoggerStub()
 

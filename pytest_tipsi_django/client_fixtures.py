@@ -228,7 +228,11 @@ def create_user(username, groups=(), permissions=(), **kwargs):
     from django.contrib.contenttypes.models import ContentType
 
     User = get_user_model()
-    exists = User.objects.filter(username=username).first()
+    if isinstance(username, str):
+        exists = User.objects.filter(username=username).first()
+    else:
+        exists = username
+
     if exists:
         user = exists
     else:

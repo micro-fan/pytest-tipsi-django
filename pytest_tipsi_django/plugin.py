@@ -73,7 +73,7 @@ def auto_transaction(request):
             yield
 
 
-@pytest.fixture(scope='session', autouse=True)  # noqa
+@pytest.fixture(scope='session', autouse=False)  # noqa
 def local_cache(session_settings, django_db_setup):
     session_settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     session_settings.BROKER_BACKEND = 'memory'

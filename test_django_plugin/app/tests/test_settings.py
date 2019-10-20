@@ -1,3 +1,4 @@
+
 class TestSettings:
     def test_01(self, function_settings, session_settings):
         function_settings.CUSTOM_SETTINGS = 5

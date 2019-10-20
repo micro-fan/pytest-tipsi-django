@@ -73,16 +73,19 @@ def auto_transaction(request):
             yield
 
 
-@pytest.fixture(scope='session', autouse=False)  # noqa
+@pytest.fixture(scope='session', autouse=True)  # noqa
 def local_cache(session_settings, django_db_setup):
-    session_settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    session_settings.BROKER_BACKEND = 'memory'
-    session_settings.CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-            'TIMEOUT': 60 * 15
+    if not session_settings.get('DEFAULT_FILE_STORAGE'):
+        session_settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    if not session_settings.get('BROKER_BACKEND'):
+        session_settings.BROKER_BACKEND = 'memory'
+    if not session_settings.get('CACHES'):
+        session_settings.CACHES = {
+            'default': {
+                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+                'TIMEOUT': 60 * 15
+            }
         }
-    }
     yield session_settings
 
 

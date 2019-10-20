@@ -5,7 +5,7 @@ from pytest_tipsi_django.client_fixtures import UserWrapper
 from pytest_tipsi_django.django_fixtures import (  # noqa
     session_settings, module_settings, function_settings,
     module_transaction, function_fixture, module_fixture,
-    django_assert_num_queries
+    django_assert_num_queries,
 )
 
 
@@ -31,6 +31,7 @@ def pytest_addoption(parser):
                     help='Write http requests for documentation')
     group.addoption('--verbose_request', action='store_true', default=False,
                     help='Print all requests to stdout')
+
 
 def pytest_configure(config):
     options = ['write_docs', 'verbose_request']
@@ -75,11 +76,11 @@ def auto_transaction(request):
 
 @pytest.fixture(scope='session', autouse=True)  # noqa
 def local_cache(session_settings, django_db_setup):
-    if not session_settings.get('DEFAULT_FILE_STORAGE'):
+    if not getattr(session_settings, 'DEFAULT_FILE_STORAGE', None):
         session_settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
-    if not session_settings.get('BROKER_BACKEND'):
+    if not getattr(session_settings, 'BROKER_BACKEND', None):
         session_settings.BROKER_BACKEND = 'memory'
-    if not session_settings.get('CACHES'):
+    if not getattr(session_settings, 'CACHES', None):
         session_settings.CACHES = {
             'default': {
                 'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',

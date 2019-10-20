@@ -2,7 +2,7 @@ import pytest
 
 
 class TestSettings:
-    @pytest.mark.usefixtures('local_cache')
+
     def test_01(self, function_settings, session_settings):
         function_settings.CUSTOM_SETTINGS = 5
         from django.conf import settings as dj_settings
@@ -11,5 +11,4 @@ class TestSettings:
 
     def test_02(self):
         from django.conf import settings
-        with pytest.raises(AttributeError):
-            assert settings.BROKER_BACKEND == 'memory'
+        assert settings.BROKER_BACKEND == 'memory'

@@ -61,7 +61,7 @@ def atomic_rollback(vprint, name, fixturename, fixturemanager):
                 else:
                     curr = None
             if curr == fixturename:
-                vprint('rollback {} {}'.format(name, sid), level=2)
+                vprint('rollback {} {} / {}'.format(name, sid, curr), level=2)
                 _transactions_stack.pop()
                 transaction.savepoint_rollback(sid)
 

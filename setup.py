@@ -16,7 +16,7 @@ with open('README.rst', 'r', encoding='utf-8') as f:
 REQUIRES = [
     'django',
     'pytest>=3.3.0',
-    'pytest-django==3.4.*',
+    'pytest-django==3.6.*',
     'tipsi-tools>=1.7.0',
     'pytest-tipsi-testing>=1.3.0',
 ]

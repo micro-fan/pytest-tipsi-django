@@ -81,11 +81,9 @@ def local_cache(session_settings, django_db_setup):
     if not getattr(session_settings, 'BROKER_BACKEND', None):
         session_settings.BROKER_BACKEND = 'memory'
     if not getattr(session_settings, 'CACHES', None):
-        session_settings.CACHES = {
-            'default': {
-                'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-                'TIMEOUT': 60 * 15
-            }
+        session_settings.CACHES['default'] = {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'TIMEOUT': 60 * 15
         }
     yield session_settings
 

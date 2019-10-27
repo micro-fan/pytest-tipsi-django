@@ -97,7 +97,7 @@ def function_fixture(request, module_transaction):
         yield
 
 
-@pytest.fixture(scope='module')
+@pytest.fixture(scope='module', autouse=True)
 def module_fixture(request, module_transaction):
     with module_transaction(request.fixturename):
         yield

@@ -3,7 +3,7 @@ from datetime import datetime
 import pytest
 from django.contrib.auth.models import User
 from django.test.utils import CaptureQueriesContext
-from rest_framework.test import APIClient
+
 
 
 # issue: module fixture must exist,
@@ -99,8 +99,8 @@ def test_check_raise_savepiont_does_not_exist5():
     with CaptureQueriesContext(connection) as expected_num_queries:
         User.objects.create(username=f'username_123')
 
-    with CaptureQueriesContext(connection) as expected_num_queries2:
-        APIClient().get(path='www.naver.com')
+    # with CaptureQueriesContext(connection) as expected_num_queries2:
+    #     APIClient().get(path='www.naver.com')
 
     assert len(expected_num_queries.captured_queries) == 1
     assert User.objects.count() == 1

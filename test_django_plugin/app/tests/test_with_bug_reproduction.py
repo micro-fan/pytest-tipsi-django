@@ -48,7 +48,7 @@ def test_check_raise_savepiont_does_not_exist3():
 )
 @pytest.mark.django_db
 def test_check_raise_savepiont_does_not_exist4(parametrize_idx_aaa):
-    User.objects.create(username='username_{}'.value(parametrize_idx_aaa))
+    User.objects.create(username='username_{}'.format(parametrize_idx_aaa))
 
     # assert 'this user available in module level' in User.objects.all().values_list('username', flat=True)
     assert 'username_{}'.format(parametrize_idx_aaa) in User.objects.all().values_list('username', flat=True)

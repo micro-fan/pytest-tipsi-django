@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from django.contrib.auth.models import User
 from django.test.utils import CaptureQueriesContext
+from rest_framework.test import APIClient
 
 
 # issue: module fixture must exist,
@@ -19,9 +20,8 @@ def this_is_function_fixture():
 
 
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist(request, http_client):
-    #    assert User.objects.all().first().username == 'this user available in module level'
-    assert User.objects.count() == 1
+def test_check_raise_savepiont_does_not_exist(request):
+    assert User.objects.count() == 0
 
 
 @pytest.mark.django_db
@@ -34,9 +34,9 @@ def test_check_raise_savepiont_does_not_exist2():
 
 @pytest.mark.usefixtures('this_is_function_fixture')
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist3(http_client):
+def test_check_raise_savepiont_does_not_exist3():
     assert 'this user available in function level' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 2
+    assert User.objects.count() == 1
 
 
 @pytest.mark.parametrize(
@@ -57,13 +57,13 @@ def test_check_raise_savepiont_does_not_exist4(parametrize_idx_aaa):
     argvalues=((1, 1), (2, 1), (3, 1), (4, datetime(2019, 10, 11)),)
 )
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist401(request, http_client, parametrize_idx_aaa, expected_value):
-    print(f'\n\n\n--여기여기---{request.fixturenames}----------\n\n\n')
+def test_check_raise_savepiont_does_not_exist401(request, parametrize_idx_aaa, expected_value):
+    print(f'\n\n\n--check fixturenames---{request.fixturenames}----------\n\n\n')
 
     User.objects.create(username=f'username_{parametrize_idx_aaa}')
 
     assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 2
+    assert User.objects.count() == 1
 
 
 @pytest.mark.parametrize(
@@ -71,37 +71,36 @@ def test_check_raise_savepiont_does_not_exist401(request, http_client, parametri
     argvalues=((1, 1), (2, 1), (3, 1), (4, datetime(2019, 10, 11)),)
 )
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist402(http_client, parametrize_idx_aaa, expected_value):
+def test_check_raise_savepiont_does_not_exist402(parametrize_idx_aaa, expected_value):
     User.objects.create(username=f'username_{parametrize_idx_aaa}')
 
     assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 2
-
+    assert User.objects.count() == 1
 
 
 @pytest.mark.parametrize(
     argnames='parametrize_idx_aaa,expected_value',
-    argvalues=((1, ValueError), (2,ValueError), (3, ValueError), (4, ValueError),)
+    argvalues=((1, ValueError), (2, ValueError), (3, ValueError), (4, ValueError),)
 )
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist402(http_client, parametrize_idx_aaa, expected_value):
+def test_check_raise_savepiont_does_not_exist402(parametrize_idx_aaa, expected_value):
     User.objects.create(username=f'username_{parametrize_idx_aaa}')
     try:
         raise ValueError
     except ValueError:
         pass
     assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 2
+    assert User.objects.count() == 1
 
 
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist5(http_client):
+def test_check_raise_savepiont_does_not_exist5():
     from django.db import connection
     with CaptureQueriesContext(connection) as expected_num_queries:
         User.objects.create(username=f'username_123')
 
     with CaptureQueriesContext(connection) as expected_num_queries2:
-        http_client.get(path='www.naver.com')
+        APIClient().get(path='www.naver.com')
 
     assert len(expected_num_queries.captured_queries) == 1
-    assert User.objects.count() == 2
+    assert User.objects.count() == 1

@@ -3,6 +3,7 @@ from datetime import datetime
 import pytest
 from django.contrib.auth.models import User
 from django.test.utils import CaptureQueriesContext
+from rest_framework.test import APIClient
 
 
 @pytest.fixture(autouse=True)
@@ -61,14 +62,14 @@ def test_check_raise_savepiont_does_not_exist4(parametrize_idx_aaa):
     argvalues=((1, 1), (2, 1), (3, 1), (4, datetime(2019, 10, 11)),)
 )
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist401(request, http_client, parametrize_idx_aaa, expected_value):
-    print(f'\n\n\n--여기여기---{request.fixturenames}----------\n\n\n')
+def test_check_raise_savepiont_does_not_exist401(request, parametrize_idx_aaa, expected_value):
+    print(f'\n\n\n--check fixtures---{request.fixturenames}----------\n\n\n')
 
     User.objects.create(username=f'username_{parametrize_idx_aaa}')
 
     assert 'this user available in module level' in User.objects.all().values_list('username', flat=True)
     assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 3
+    assert User.objects.count() == 2
 
 
 @pytest.mark.parametrize(
@@ -76,22 +77,22 @@ def test_check_raise_savepiont_does_not_exist401(request, http_client, parametri
     argvalues=((1, 1), (2, 1), (3, 1), (4, datetime(2019, 10, 11)),)
 )
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist402(http_client, parametrize_idx_aaa, expected_value):
+def test_check_raise_savepiont_does_not_exist402(parametrize_idx_aaa, expected_value):
     User.objects.create(username=f'username_{parametrize_idx_aaa}')
 
     assert 'this user available in module level' in User.objects.all().values_list('username', flat=True)
     assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
-    assert User.objects.count() == 3
+    assert User.objects.count() == 2
 
 
 @pytest.mark.django_db
-def test_check_raise_savepiont_does_not_exist5(http_client):
+def test_check_raise_savepiont_does_not_exist5():
     from django.db import connection
     with CaptureQueriesContext(connection) as expected_num_queries:
         User.objects.create(username=f'username_123')
 
     with CaptureQueriesContext(connection) as expected_num_queries2:
-        http_client.get(path='www.naver.com')
+        APIClient().get(path='www.naver.com')
 
     assert len(expected_num_queries.captured_queries) == 1
-    assert User.objects.count() == 3
+    assert User.objects.count() == 2

@@ -64,10 +64,10 @@ def test_check_raise_savepiont_does_not_exist4(parametrize_idx_aaa):
 def test_check_raise_savepiont_does_not_exist401(request, parametrize_idx_aaa, expected_value):
     print('\n\n\n--check fixtures---{}----------\n\n\n'.format(request.fixturenames))
 
-    User.objects.create(username=f'username_{parametrize_idx_aaa}')
+    User.objects.create(username='username_{}'.format(parametrize_idx_aaa))
 
     assert 'this user available in module level' in User.objects.all().values_list('username', flat=True)
-    assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
+    assert 'username_{}'.format(parametrize_idx_aaa) in User.objects.all().values_list('username', flat=True)
     assert User.objects.count() == 2
 
 
@@ -80,7 +80,7 @@ def test_check_raise_savepiont_does_not_exist402(parametrize_idx_aaa, expected_v
     User.objects.create(username='username_{}'.format(parametrize_idx_aaa))
 
     assert 'this user available in module level' in User.objects.all().values_list('username', flat=True)
-    assert f'username_{parametrize_idx_aaa}' in User.objects.all().values_list('username', flat=True)
+    assert 'username_{}'.format(parametrize_idx_aaa) in User.objects.all().values_list('username', flat=True)
     assert User.objects.count() == 2
 
 

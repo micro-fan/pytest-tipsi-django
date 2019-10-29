@@ -1,5 +1,6 @@
 import inspect
 from contextlib import contextmanager
+import warnings
 
 import pytest
 from _pytest import fixtures
@@ -93,12 +94,14 @@ def module_transaction(request, vprint, django_db_blocker, django_db_setup):
 
 @pytest.fixture
 def function_fixture(request, module_transaction):
+    warnings.warn('function_fixture is deprecated', DeprecationWarning)
     with module_transaction(request.fixturename):
         yield
 
 
 @pytest.fixture(scope='module')
 def module_fixture(request, module_transaction):
+    warnings.warn('module_fixture is deprecated', DeprecationWarning)
     with module_transaction(request.fixturename):
         yield
 

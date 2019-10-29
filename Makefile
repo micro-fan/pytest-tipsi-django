@@ -4,4 +4,4 @@ test_db:
 	echo create database plugin | psql -h localhost -p 40001 -U postgres
 
 tox_test:
-	tox -e py36 -- -vsx --docker-skip
+	tox -e py37 -- -vsx --docker-skip

@@ -78,7 +78,7 @@ def auto_transaction(request):
 def local_cache(session_settings, django_db_setup):
     session_settings.DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
     session_settings.BROKER_BACKEND = 'memory'
-    if not hasattr(session_settings, 'CACHES', None):
+    if not hasattr(session_settings, 'CACHES'):
         session_settings.CACHES['default'] = {
             'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
             'TIMEOUT': 60 * 15

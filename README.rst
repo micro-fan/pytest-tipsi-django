@@ -10,12 +10,39 @@ pytest-tipsi-django
 .. contents:: **Table of Contents**
     :backlinks: none
 
+
 Installation
 ------------
 
 .. code-block:: bash
 
     $ pip install pytest-tipsi-django
+    
+Features 
+------------
+
+* Default django test settings
+
+  - if you run pytest after install pytest-tipsi-django, 
+    Configuration already has django settings.CACHE['default']
+   
+  - of course if you has Custom django settings, this settings to below are ignored.
+
+.. code-block:: python
+    
+    DEFAULT_FILE_STORAGE = 'django.core.files.storage.FileSystemStorage'
+    BROKER_BACKEND = 'memory'
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'TIMEOUT': 60 * 15
+        }
+    }
+   
+  
+  
+  
+  
 
 License
 -------

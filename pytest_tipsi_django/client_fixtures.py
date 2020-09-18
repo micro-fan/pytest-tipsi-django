@@ -193,10 +193,16 @@ class UserWrapper:
             msg = '{} {}'.format(resp.status_code, resp.content)[:1000]
             raise APIError(msg, resp=resp, expected=expected)
 
+    def resp_json(self, resp, expected):
+        if expected == 204:
+            assert not resp.content, f'204 must contain no body: {r.content}'
+            return
+        return resp.json()
+
     def get_json(self, *args, expected=200, **kwargs):
         r = self.json_method('get', *args, **kwargs)
         self.check_code(r, expected)
-        return r.json()
+        return self.resp_json(r, expected)
 
     def get_results(self, *args, **kwargs):
         return self.get_json(*args, **kwargs)['results']
@@ -204,22 +210,22 @@ class UserWrapper:
     def post_json(self, *args, expected=201, **kwargs):
         r = self.json_method('post', *args, **kwargs)
         self.check_code(r, expected)
-        return r.json()
+        return self.resp_json(r, expected)
 
     def patch_json(self, *args, expected=200, **kwargs):
         r = self.json_method('patch', *args, **kwargs)
         self.check_code(r, expected)
-        return r.json()
+        return self.resp_json(r, expected)
 
     def put_json(self, *args, expected=200, **kwargs):
         r = self.json_method('put', *args, **kwargs)
         self.check_code(r, expected)
-        return r.json()
+        return self.resp_json(r, expected)
 
     def delete_json(self, *args, expected=204, **kwargs):
         r = self.json_method('delete', *args, **kwargs)
         self.check_code(r, expected)
-        assert not r.content, r.content
+        return self.resp_json(r, expected)
 
 
 def create_user(username, groups=(), permissions=(), **kwargs):

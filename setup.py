@@ -15,9 +15,9 @@ with open('README.rst', 'r', encoding='utf-8') as f:
 
 REQUIRES = [
     'django',
-    'pytest>=3.3.0',
-    'pytest-django>=3.6.*',
-    'tipsi-tools>=1.7.0',
+    'pytest>=6.0.0',
+    'pytest-django==3.10.*',
+    'fan-tools>=2.8.1',
     'pytest-tipsi-testing>=1.3.0',
 ]
 
@@ -47,9 +47,9 @@ setup(
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
         'Operating System :: OS Independent',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
         'Programming Language :: Python :: Implementation :: CPython',
     ],
 

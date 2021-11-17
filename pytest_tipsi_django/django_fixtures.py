@@ -175,6 +175,6 @@ def debug_db_queries():
     from django.test.utils import CaptureQueriesContext
 
     with CaptureQueriesContext(connection) as context:
-        yield
+        yield context
         for msg in context:
             print(f'Query: {msg}')

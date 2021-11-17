@@ -1,9 +1,7 @@
-name: master
+name: pull request
 
 on:
-  push:
-    branches:
-      - master
+  pull_request:
 
 jobs:
   run-tests:

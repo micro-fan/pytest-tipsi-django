@@ -1,10 +1,12 @@
 pytest-tipsi-django
 ===================
 
-.. image:: https://travis-ci.org/micro-fan/pytest-tipsi-django.svg?branch=master
-   :target: https://travis-ci.org/micro-fan/pytest-tipsi-django
+.. image:: https://img.shields.io/github/workflow/status/micro-fan/pytest-tipsi-django/master
+   :alt: GitHub Workflow Status
+   :target: https://github.com/micro-fan/pytest-tipsi-django/actions
+
 .. image:: https://img.shields.io/pypi/v/pytest-tipsi-django.svg
-   :target: https://pypi.python.org/pypi/pytest-tipsi-django
+   :target: https://pypi.python.org/pypi/pytest-tipsi-django/
 
 
 .. contents:: **Table of Contents**

@@ -1,18 +1,94 @@
-[tool.black]
+[project]
+name = 'pytest-tipsi-django'
+dynamic = ["version"]
+description = 'Better fixtures for django'
+readme = "README.rst"
+authors = [
+  { name = 'cybergrind', email = 'cybergind+pypi@gmail.com' }
+]
+keywords = ['pytest', 'pytest-django', 'fixtures', 'transactions', 'scopes']
+dependencies = [
+  'django',
+  'pytest>=6.0.0',
+  'pytest-django>=3.10',
+  'fan-tools>=2.8.1',
+  'pytest-tipsi-testing>=1.4.3',
+
+]
+classifiers = [
+  'Development Status :: 5 - Production/Stable',
+  'Intended Audience :: Developers',
+  'License :: OSI Approved :: MIT License',
+  'Operating System :: OS Independent',
+  'Programming Language :: Python',
+  'Programming Language :: Python :: 3.9',
+  'Programming Language :: Python :: 3.10',
+  'Programming Language :: Python :: 3.11',
+  'Programming Language :: Python :: Implementation',
+  'Programming Language :: Python :: Implementation :: CPython',
+  'Topic :: Software Development',
+  'Topic :: Software Development :: Libraries',
+  'Topic :: Utilities',
+]
+
+[project.urls]
+github = 'https://github.com/tipsi/pytest-tipsi-django'
+
+[project.optional-dependencies]
+test = ['coverage', 'pytests']
+
+[tool.hatch.version]
+path = "pytest_tipsi_django/__init__.py"
+
+[build-system]
+requires = ['setuptools', 'wheel', 'hatchling']
+build-backend = 'hatchling.build'
+
+[tool.hatch.build]
+exclude = [
+  '.*',
+  '.gitignore',
+  'tox.ini',
+  'tests',
+  'test_django_plugin',
+  'conftest.py',
+  'Makefile',
+]
+
+[tool.hatch.commands]
+prerelease = 'hatch build'
+
+[project.entry-points.pytest11]
+pytest_tipsi_django = 'pytest_tipsi_django.plugin'
+
+
+[tool.ruff]
 line-length = 100
-skip-string-normalization = true
-py36 = true
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+select = [
+  "E",     # pycodestyle
+  "F",     # pyflakes
+  "I",     # isort
+  "G",     # flake8-logging-format
+  "ASYNC", # flake8-async
+  "PIE",   # flake8-pie
+  "T20",   # flake8-print
+  "PT",    # flake8-pytest-style
+  "Q",     # flake8-quotes
+]
+ignore = [
+  "Q001",
+  "Q003"
+]
+
+[tool.ruff.format]
+quote-style = "single"
+
+[tool.ruff.lint.isort]
+combine-as-imports = true
+known-first-party = ['snapshot_manager']
+lines-after-imports = 2
+
+[tool.ruff.lint.flake8-quotes]
+docstring-quotes = "double"
+inline-quotes = "single"
+multiline-quotes = "single"

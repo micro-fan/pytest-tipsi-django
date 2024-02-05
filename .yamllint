@@ -1,0 +1,13 @@
+---
+extends: default
+
+rules:
+  line-length:
+    max: 100
+    level: warning
+
+  truthy:
+    allowed-values: ['true', 'false', 'yes', 'no']
+
+  indentation:
+    indent-sequences: whatever

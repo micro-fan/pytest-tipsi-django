@@ -2,7 +2,7 @@ import os
 import time
 from contextlib import suppress
 import pytest
-from fan_tools.unix import wait_socket, succ
+from fan_tools.unix import wait_socket, succ, ExecError
 
 
 def create_database():

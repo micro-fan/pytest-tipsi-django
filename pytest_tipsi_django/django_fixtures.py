@@ -1,10 +1,12 @@
 import inspect
-from contextlib import contextmanager
 import warnings
+from contextlib import contextmanager
 
 import pytest
 from _pytest import fixtures
+from pytest_django._version import __version_tuple__
 from pytest_django.fixtures import SettingsWrapper as OriginalSettingsWrapper
+
 
 _transactions_stack = []
 
@@ -21,12 +23,14 @@ def get_defs_by_name(vprint, request, name):
         defs = fixturemanager._arg2fixturedefs[name]
         vprint(
             'Get fixtures without respecting factories: {} {}'.format(request.node.nodeid, defs),
-            level=2)
+            level=2,
+        )
 
     # We need this only to finish fixtures in _transactions_stack
     # if we have no defs here - there will be infinite loop in atomic_rollback:while below
     assert defs, 'Cannot find: {} Available: {}'.format(
-        name, list(fixturemanager._arg2fixturedefs.keys()))
+        name, list(fixturemanager._arg2fixturedefs.keys())
+    )
     vprint('Finish variants: {} For: {}'.format(defs, name), level=3)
     return defs
 
@@ -92,7 +96,7 @@ def module_transaction(request, vprint, django_db_blocker, django_db_setup):
     connection.close()
 
 
-@pytest.fixture
+@pytest.fixture()
 def function_fixture(request, module_transaction):
     warnings.warn('function_fixture is deprecated', DeprecationWarning)
     with module_transaction(request.fixturename):
@@ -106,15 +110,22 @@ def module_fixture(request, module_transaction):
         yield
 
 
-class SettingsWrapper(OriginalSettingsWrapper):
-    """
-    we need `_to_restore` to be object local to work with nesting
-    see test_settings.py for test case
-    """
+if __version_tuple__ < (4, 8, 0):
 
-    def __init__(self):
-        self.__dict__['_to_restore'] = []
-        assert id(SettingsWrapper._to_restore) != id(self._to_restore)
+    class SettingsWrapper(OriginalSettingsWrapper):
+        """
+        we need `_to_restore` to be object local to work with nesting
+        see test_settings.py for test case
+        """
+
+        def __init__(self):
+            self.__dict__['_to_restore'] = []
+            assert id(SettingsWrapper._to_restore) != id(self._to_restore)
+
+else:
+
+    class SettingsWrapper(OriginalSettingsWrapper):
+        pass
 
 
 @pytest.fixture(scope='session')
@@ -169,7 +180,7 @@ module_fx = transaction_fx('module')
 function_fx = transaction_fx('function')
 
 
-@pytest.fixture
+@pytest.fixture()
 def debug_db_queries():
     from django.db import connection
     from django.test.utils import CaptureQueriesContext
